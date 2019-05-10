@@ -3,9 +3,9 @@ import os
 import sys
 import time
 import zlib
+
 import simplejson
 import zmq
-import mysql.connector
 
 # deranged octopus
 
@@ -49,27 +49,29 @@ __authorisedSoftwares = [
 ]
 
 """
-Test code for inserting data:
-"""
+ "  Test code for inserting data:
+
 
 cnx = mysql.connector.connect(user='TestUser', password='!QA"WS1qa2ws', host='127.0.0.1', port='3306', database='ecdb_monitor')
 cursor = cnx.cursor(buffered=True)
+delete_software = ("TRUNCATE TABLE authorisedsoftwares")
 check_software = ("SELECT softwareName, usageCount, lastUsed FROM authorisedSoftwares WHERE softwareName = %s")
-add_software = ("INSERT INTO authorisedSoftwares (softwareName, usageCount, lastUsed) VALUES (%s, %s, %s)")
+add_software = ("INSERT INTO authorisedSoftwares (softwareName, usageCount, lastUsed, firstAdded) VALUES (%s, %s, %s, %s)")
 
 
 for __softwareName in __authorisedSoftwares:
     cursor.execute(check_software, (__softwareName,))
     if cursor.rowcount == 0:
+        timeAdded = datetime.datetime.utcnow()
         #no data returned - software doesn't exist so add.
-        cursor.execute(add_software, (__softwareName, 0, datetime.datetime.utcnow()))
+        cursor.execute(add_software, (__softwareName, 0, timeAdded, timeAdded))
 
 cnx.commit()
 cursor.close()
 cnx.close()
 
-"""
-End test code
+
+ "  End test code
 """
 
 
